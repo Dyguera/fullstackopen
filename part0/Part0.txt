@@ -1,0 +1,144 @@
+Part 0 
+
+Fundamentos da aplicação Web
+
+Cenário:  GET e POST de formulários
+
+Aplicação web tradicional 
+
+Get:
+Faz um get para baixar o Documento HTML do servidor
+ - Servidor envia HTML (Primeira linha tem um <link com o css e segunda linha tem <script) 
+Faz um get para baixar o CSS 
+ - Servidor envia o CSS montado
+Faz um get para baixar o arquivo .js 
+ - Servidor envia o arquivo .js montado
+*Navegador roda o script JS, dentro dele existe uma busca(fetch) do JSON no servidor
+Faz um get para baixar o data.json do servidor 
+*Navegador executa a função call-back que deve ser realizada após o evento de fetch 
+
+
+Post: 
+Vai gerar 5 requisições HTTP 
+Faz um post para o endereço correto do servidor (.../new_note) que contem no payload apenas o conteúdo preenchido pelo usuario
+ - Servidor responde com http 302 (redireciona) que pede ao navegador para fazer nova requisição get para um endereço que 
+o servidor vai decidir no cabeçario desse pedido, podemos ver isso em Response Headers - Location: / tudo isso para forçar o navegador a atualizar
+Faz um recarregamento da página que gera novas 3 requisições
+Faz um get do arquivo css 
+- Servidor responde enviando o arquivo css
+faz um get do arquivo JavaScript
+- Servidor responde enviando o arquivo JavaScript 
+faz um get dos dados em json
+- Servidor responde enviando os dados em Json
+
+O HTML do formulário: 
+<form action = "rota/correta" method="POST"> 
+<inputs>...
+</form>
+
+No servidor, o código responsável pela requisição post de resposta
+app.post('/new_note', (req, res) => {
+  notes.push({
+    content: req.body.note,
+    date: new Date(),
+  })
+
+  return res.redirect('/notes')
+})
+
+
+Agora veremos com Ajax (Asynchronous JavaScript and XML) 
+Altera o carregamento de conteúdo em paginas web que usam JS = Abordagem para menor renderização
+
+Antes: Busca por HTML que era gerado pelo navegador 
+As URL's eram como 
+Buscar dados: https://studies.cs.helsinki.fi/exampleapp/data.json
+Enviar novas notas: https://studies.cs.helsinki.fi/exampleapp/new_note 
+
+Elas não seguem a convenção RESTful = Representational State Transfer
+
+Até agora, na abordagem clássica
+Toda lógica está no servidor e o navegador só renderiza o HTML conforme instruído 
+Uma pequena parte, especificamente na /notes é construída pelo navegador, que segue os comandos do JavaScript para adicionar notas no html através da api do DOM 
+
+Código JS DOM 
+
+var xhttp = new XMLHttpRequest()
+
+xhttp.onreadystatechange = function() {
+  if (this.readyState == 4 && this.status == 200) {
+    const data = JSON.parse(this.responseText)
+    console.log(data)
+
+    var ul = document.createElement('ul')
+    ul.setAttribute('class', 'notes')
+
+    data.forEach(function(note) {
+      var li = document.createElement('li')
+
+      ul.appendChild(li)
+      li.appendChild(document.createTextNode(note.content))
+    })
+
+    document.getElementsByClassName('notes').appendChild(ul)
+  }
+}
+
+xhttp.open('GET', '/data.json', true)
+xhttp.send()
+
+Veja que preciso do data que vai vir do servidor para criar elementos html e inserir o conteúdo que são as notas
+
+Single Page Aplication SPA 
+Não baixam várias páginas html separadas do servidor, é 1 html que será manipulado pelo JavaScript
+
+O exemplo das notas estão quase no estilo SPA, mas o envio das notas ainda tem uma abordagem clássica
+Os dados são enviados para o servidor através do envio do formulário e o servidor instrui o navegador a recarregar a página "Notes" com um redirect.
+
+O HTML do formulário agora é 
+<form id = "notes_form">  // veja, tirei o action e o method
+<inputs>...
+</form>
+
+Ou seja, o formulário não decide onde e como vai enviar as requisições
+Se realizarmos um post nessa modalidade, veremos apenas 1 requisição
+
+Faz um post para o servidor no endereço correto e no payload tem tanto os dados preenchidos como o timestamp (que antes era o servidor quem adicionava)
+O contente type dessa requisição está em json (modo clássico era apenas um texto html)
+ - Servidor responde com 201, não precisa de redirecionamento dessa vez, navegador permanece na mesma página e não envia outras requisições
+
+O novo Javascript é mais robusto, agora nele a temos códigos de post que antes existiam apenas no lado do servidor
+
+var form = document.getElementById('notes_form')
+form.onsubmit = function(e) {
+  e.preventDefault()
+
+  var note = {
+    content: e.target.elements[0].value,
+    date: new Date(),
+  }
+
+  notes.push(note)
+  e.target.elements[0].value = ''
+  redrawNotes()
+  sendToServer(note)
+}
+
+document.getElementById('notes_form') = isso instrui o código a buscar o elemento da página e registra um evento
+
+form.onsubmit = function(e) {
+  e.preventDefault()  // Primeira coisa que o código faz, para prevenir que a abordagem clássica ocorra (esse é o padrão)
+
+O método padrão enviaria os dados para o servidor e causaria uma nova requisição GET, o que não queremos que aconteça.
+
+Ai cria-se a nova nota, adiciona a lista de notas, redesenha a lista e envia as notas para o servidor 
+
+Agora, temos o código de envio ao servidor
+var sendToServer = function(note) {
+  var xhttpForPost = new XMLHttpRequest()
+  // ...
+
+  xhttpForPost.open('POST', '/new_note_spa', true)
+  xhttpForPost.setRequestHeader('Content-type', 'application/json')
+  xhttpForPost.send(JSON.stringify(note))
+}
