@@ -1,0 +1,249 @@
+Variáveis
+Let, const e var 
+
+As mudanças se tratam de escopo que as variáveis fazem e o hoisting default do javaScript 
+
+
+for (var i =0; 1 < 10; i++) {
+console.log(i)
+}
+
+console.log(i) // Isso deveria retornar undefined, visto que escrevi o i no scope da função for, mas o 
+JavaScript faz o hoisting 
+
+Antes, existia só 1 scope de variável, o escopo de função 
+
+function counter () {
+for (var i =0; 1 < 10; i++) {
+console.log(i)
+}
+console.log(i)    // Veja, ainda estou dentro do scope da função, o código vai rodar mostrando 10
+
+}
+counter()  
+
+console.log(i)  // Aqui vamos ter undefined
+
+Portanto, isso se tornou um problema. Quando não queremos que variáveis saia do scopo de funções, o que fazemos ?
+
+Estratégia 1 IIFE = Immideately invoked function
+
+(function (){
+for (var i =0; 1 < 10; i++) {
+console.log(i)
+}) () 
+
+console.log(i)  Isso garante que as variáveis da função saiam de seu scopo. 
+
+Mas ainda assim tinhamos que tomar cuidado com o hoisting
+
+Para executar o código, o JavaScript pega as variáveis e eleva para o começo das funções. 
+Se ele não tiver dentro de uma função, ele eleva pro objeto window. 
+
+Então, para executar, ele transforma o código para 
+
+(function (){
+var i; // Ele faz isso sozinho, traz as declarações das variáveis pro começo do scopo
+for (i =0; 1 < 10; i++) {
+console.log(i)
+}) () 
+console.log(i) 
+
+E se por um acaso, você esquecer de declara a variável, e apenas escrever o código assim: 
+
+(function (){
+for (i =0; 1 < 10; i++) {
+console.log(i)
+}) () 
+console.log(i) 
+
+Ele vai sozinho fazer o hosting pro objeto windows e dai, sem você querer, a variável i vai ficar com scopo global
+
+Eis o problema, você pode sem querer declarar variáveis globais por conta do hoisting. E se não estivermos falando 
+de função, var sempre vai ir pro objeto global. E mesmo dentro de função, se não tomar cuidado, vai pro objeto global 
+
+Como solucionar ?
+
+1 - Usando o "use strict";
+Impede criação de variáveis globais como consequência de hoisting
+
+2 - Usando let;
+Ele traz o block scope, diferente do function scope (que tem o hoisting)
+
+3 - Usar const
+Minimize mutable State
+Não deixa você redefinir uma variável, mais especificamente, não podemos mudar seu local na memoria. 
+
+Portanto, se instanciarmos um objeto ou array com const 
+const números = [0,1,2] 
+números.push(3) 
+
+Isso é possível pois não estamos realocando o lugar da memoria, o apontamento continua igual
+
+E aqui devemos tomar outro cuidado com o paradigma da nossa programação
+Sempre se perguntar: Queremos mudar o original ? 
+.push altera o original (independente do const) 
+
+agora
+const t = [1, -1, 3]
+const t2 = t.concat(5) // cria um segundo array, com outro apontamento de memoria, deixando o original intacto
+
+Isso é considerado boa prática de programação, quando nosso paradigma é programação funciona e  estruturas de dados imutáveis.
+
+
+Entende que 
+Referenciar um objeto é uma boa estratégia, quando temos certeza que o objeto original não será mudado, economiza
+recursos de processamento e o código fica mais rápido quando se faz copias 
+Cópias geram dados repetidos, chamados de funções duplicados e lerdeza em código 
+
+const numeros = [1, 2, 3]
+
+const novonumero = numeros;
+novonumero.push(10)
+
+console.log(numeros)
+
+Estou manipulando o objeto original ao usar o novonumeros.
+
+O Redux vai nos ajudar mais pra frente com isso, de não deixar mudar coisas 
+
+
+
+MAP 
+Uma maneira de percorrer um array ?
+Map resulta em um novo array. 
+Esse novo array é preenchido com o resultado de uma função callback que é chamada em cada elemento do array original 
+
+Com base no array antigo, o map cria um array novo, para o qual a função dada como parâmetro é usada para criar os itens
+
+é bom entender map porque é usado muito no React
+
+Destruction e alteração do objeto/array original 
+
+O padrão da técnica de destruction é apenas ser mais rápido, criar novas variáveis e atribuir valores presentes em 
+objetos e arrays 
+
+Destruction não é capaz de criar cópias
+Se o valor passado via destruction for um objeto, será uma referencia portanto 
+Por de baixo dos panos, pro destruction funcionar, existe um procedimento chamado binding e outro chamado assignment
+
+
+Biding: 
+Processo que associa um nome de variável a um valor. Quando criamos uma variável, fazemos o biding 
+Ou seja, quando fazemos algo como 
+
+let exemplo
+const Rodrigo 
+
+Estamos criando um biding (ligando) entre esses nomes (exemplo e Rodrigo) a um valor na memória
+
+Assignment
+Atribuir um valor a uma variável já existente (a um espaço na memória alocado)
+
+A syntaxe abaixo de destruction faz os dois ao mesmo tempo
+const numeros = [1, 2, 3];
+const [a, b, c] = numeros;
+
+Isso é análogo a 
+const a = numeros[0]
+
+Portanto, se eu mudar a variável a, não vou mecher no array, não é cópia nem referencia, é uma outra variável que recebe esse valor. 
+
+Se no momento deu usar destruction, o valor que estou passando é um objeto inteiro ou uma informação aninhada, ai estou referenciando 
+
+Sintaxe: 
+const obj = {
+ a: 1, 
+ b:{
+     c: 2   // C dentro de B
+ } 
+};
+
+const {
+  a,
+  b: { c: d },
+} = obj;
+
+nesse exemplo, temos 2 bounds (criamos duas variaveis)
+a e d
+D está guardando o que está guardando 2 nessse comento
+
+
+Seria o mesmo que 
+const obj = { a: 1, b: { c: 2 } };
+const a = obj.a;
+const d = obj.b.c; // que seria 2, apenas fiz uma abstração de valor e coloquei nessa variável
+
+Agora, se eu fizer assim 
+
+const objetoOriginal = { a: 1, b: { c: 2 } };
+
+const { a, b } = objetoOriginal;
+Estou atribuindo um objeto inteiro a b, portanto, ele é uma referencia, e se mudar em 1 muda no outro
+
+
+This in JS
+
+This é uma palavra reservada da linguagem JS. 
+Ela ja vem existente no código fonte de JS
+Ela aponta para o objeto global ou window 
+Ela é usada para referenciamento (dar contexto) 
+
+O padrão é 
+Função Regular com chamada Direta= this é o window ou o objeto (undefined em modo estrito)
+Em uma classe, this se refere à instancia da calasse e não a classe em sí
+Em um método de um objeto, this é o objeto que contem o método 
+Em funções callback, usa-se arrow function pois elas mantem o contexto (ela não tem o proprio this e o this de function é o objeto global)
+Em uma arrowFunction, não existe o this, é usado o this do contexto léxico, ou então, o this que está acima imediatamente 
+Em Event Listeners, this é o elemento que acionou o evento
+
+
+
+
+Em uma classe, this se refere à instancia da calasse e não a classe em sí
+Funções construtoras ou classes, entendendo o passo a passo que a palavra new faz
+
+function Exemplo(a,b) {
+const novoObjeto {} // Isso é feito automaticamente
+this = novoObjeto  // Vinculado o this que antes era undefined ou o objeto global a esse novo objeto. É literalmente o apontamento de referencia, this e novoObjeto são a mesma coisa
+this.a = firstName // Criando parâmetros do objeto novoObjeto, como o this é o novoObjeto, seria o mesmo que fazer novoOjeto.a = fistname..
+this.b - lastName
+return this // Retorna o novo objeto
+}
+
+Então, usar o new na hora de chamar o Exemplo economiza tempo, ele vai criar o novo objeto, vincular o prototipo que escrevemos a esse novo objeto, vincular o this e retornar automaticamente
+
+
+Em um método de um objeto, this é o objeto que contem o método 
+Entanda o objeto que contem a função como Receptar ou receiver
+
+const person = {
+firstName:"john"
+sayHI(console.log(this.firsthame)) Isso dá certo, pois sabemos que this é o objeto que contem o método e no caso, person é um receptor da função sayHi
+}
+
+function sayHI(){sayHI(console.log(this.firsthame))}  Mesmo eu atribuindo a função depois da criação dela, person ainda é o receiver da função e portanto, this aponta pra ele 
+const person {fristname:"Rodrigo"} 
+person.sayHI = sayHI
+
+O BO È QUANDO O METODO PERDE SEU RECEPTOR
+Se eu colocar uma varável como intermediario 
+const greet =  person.sayHI
+greet() // Agora perdi o Receptor da função, portanto o this aqui é o objeto global, pois sabemos que Função Regular com chamada Direta= this é o window ou o objeto (undefined em modo estrito)
+
+Outro exemplo de como perder o Receptor é quando estamos em uma callback
+Em funções callback, usa-se arrow function pois elas mantem o contexto (ela não tem o proprio this e o this de function é o objeto global)
+
+const person = {
+firstName:"Rodrigo"
+sayHI(){console.log(this.firsName)}
+}
+
+setTimeout(person.sayHi), 1000 // Perdemos o Receptor
+Para contornar, usa-se o Arrow Funcition, ou então, envolve em uma função
+
+setTimeout(function(){person.sayHi()}, 1000)
+
+Também poderíamos bindar forçadamente
+setTimeOut(person.sayHi.bind(person), 1000;
+
