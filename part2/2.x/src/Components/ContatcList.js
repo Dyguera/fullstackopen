@@ -1,11 +1,11 @@
 import React from 'react';
 
-const ContatcList = ({ filteredPersons }) => {
+const ContatcList = ({ persons }) => {
   return (
     <div>
       <h2>Numbers</h2> {/* Movi o título para cá */}
-      {filteredPersons && filteredPersons.length > 0 ? (
-        filteredPersons.map((person) => (
+      {persons.length > 0 ? (
+        persons.map((person) => (
           <div key={person.id}>
             <p>Name: {person.name}</p>
             <p>Number: {person.number}</p>
