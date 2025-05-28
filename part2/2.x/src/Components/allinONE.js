@@ -1,22 +1,21 @@
-import React from 'react'
+/*import React, { useEffect } from 'react'
+import axios from 'axios'
 import { useState } from 'react';
 
 const teste = () => {
-    const [persons, setPersons] = useState([
-        { name: 'Arto Hellas', number: '040-123456', id: 1 },
-        { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-        { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-        { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 },
-        { name: 'Arthur Dent', number: '42-42-424242', id: 5 }
-        
-        
-    ]);
-
+    const [persons, setPersons] = useState([]);
     const [newName, setNewName] = useState(''); 
     const [newNumber, setnewNumber] = useState(''); 
     const [errorMessage, setErrormessage] = useState('');  
     const [inputFilter, setInputFilter] = useState('');
     const [filterPerson, setFilterPerson] = useState(''); 
+
+    useEffect(()=>{
+        axios.get('http://localhost:3001/persons')
+        .then(reponse => {
+            setPersons(Response.data)
+        })
+    }, [])
 
     const handleSubmit = (e)=>{ 
         e.preventDefault()
@@ -51,10 +50,15 @@ const teste = () => {
             id: persons.lenght +1
         }
 
-        setPersons([...persons, newPerson]);
-        setFilterPerson([...persons, newPerson]);
+        axios.post('http://localhost:3001/persons', newPerson)
+        .then(response => { 
+        setPersons([...persons, response.data]);
         setNewName("");
         setnewNumber("");    
+        })
+        
+        setFilterPerson([...persons, newPerson]);
+        
     }
 
     const hanldeFilerChange = (e) => {
@@ -105,4 +109,4 @@ const teste = () => {
   )
 }
 
-export default teste
+export default teste */
